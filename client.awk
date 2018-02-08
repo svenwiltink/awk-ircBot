@@ -25,7 +25,12 @@ function registerCommand(name, functionName) {
     commands[name] = functionName;
 }
 
-function checkIrcForInput(service) {
+function registerListener(listenerName) {
+    print "trying to register a listener " listenerName;
+    listeners[listenerName] = listenerName;
+}
+
+function checkIrcForInput(service,          banaan, line, parts, i, cmdStart) {
     if (banaan = (service |& getline line) > 0) {
         print line;
         split(line, parts);
@@ -38,6 +43,14 @@ function checkIrcForInput(service) {
         if (parts[2] == "001") {
             print "JOIN \#bananentaart" |& service;
             return;
+        }
+
+        if (parts[2] == "PRIVMSG") {
+            for(i in listeners) {
+                if(@i(service, parts) == "stop") {
+                    return;
+                }
+            }
         }
 
         cmdStart="^:!";
@@ -54,6 +67,7 @@ function checkIrcForInput(service) {
 
             print "PRIVMSG " parts[3] " :Unknown command" |& service;
         }
+
         return;
     }
 }
@@ -61,4 +75,3 @@ function checkIrcForInput(service) {
 function ltrim(s) { sub(/^[ \t\r\n]+/, "", s); return s }
 function rtrim(s) { sub(/[ \t\r\n]+$/, "", s); return s }
 function trim(s) { return rtrim(ltrim(s)); }
-
